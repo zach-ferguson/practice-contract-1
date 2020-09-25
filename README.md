@@ -1,1 +1,1 @@
-"#practice-contract-1" 
+"#solidity-practice" 
