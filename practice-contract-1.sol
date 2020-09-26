@@ -2,6 +2,7 @@ pragma solidity 0.5.12;
 
 contract mappingPractice{
 
+
     struct Workout{
         string liftName;
         uint weight;
@@ -10,10 +11,13 @@ contract mappingPractice{
         bool strengthEx;
     }
 
+    event workoutCreated(string liftName, uint sets, uint reps, address);
+    event workoutDeleted(string liftName, address);
+
     address public owner;
 
     modifier onlyOwner(){
-        require(msg.sender == owner);
+        require(msg.sender == owner, "This address is not authorized to execute the task.");
         _;
     }
 
@@ -25,7 +29,6 @@ contract mappingPractice{
     address[] private workoutCreators;
 
     function createWorkout(string memory liftName, uint weight, uint sets, uint reps) public{
-        require(reps > 1, "workout cannot be a 1RM");
         Workout memory newWorkout;
         newWorkout.liftName = liftName;
         newWorkout.weight = weight;
@@ -55,7 +58,7 @@ contract mappingPractice{
                             newWorkout.reps,
                             newWorkout.sets,
                             newWorkout.strengthEx)));
-
+        emit workoutCreated(newWorkout.liftName, newWorkout.sets, newWorkout.reps, msg.sender);
     }
 
   function insertWorkout(Workout memory newWorkout) private{
@@ -67,11 +70,14 @@ contract mappingPractice{
      address creator = msg.sender;
      return(workouts[creator].liftName, workouts[creator].weight, workouts[creator].sets, workouts[creator].reps, workouts[creator].strengthEx);
   }
-  function deleteWorkout(address creator) public onlyOwner{
+  function deleteWorkout(address creator, string memory liftName) public onlyOwner{
+
       delete workouts[creator];
       assert(workouts[creator].weight==0);
+      emit workoutDeleted(liftName, msg.sender);
   }
-  function getCreator(uint index)public view onlyOwner returns(address){
+  function getCreator(uint index)public payable returns(address){
+      require(msg.value==0.05 ether);
       return workoutCreators[index];
   }
 }
