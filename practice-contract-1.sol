@@ -2,6 +2,7 @@ pragma solidity 0.5.12;
 
 contract mappingPractice{
 
+    uint contractBalance = 0;
 
     struct Workout{
         string liftName;
@@ -16,6 +17,12 @@ contract mappingPractice{
 
     address public owner;
 
+    modifier costs(uint cost){
+        require(msg.value >= cost);
+        _;
+    }
+
+
     modifier onlyOwner(){
         require(msg.sender == owner, "This address is not authorized to execute the task.");
         _;
@@ -28,7 +35,8 @@ contract mappingPractice{
     mapping(address => Workout) public workouts;
     address[] private workoutCreators;
 
-    function createWorkout(string memory liftName, uint weight, uint sets, uint reps) public{
+    function createWorkout(string memory liftName, uint weight, uint sets, uint reps) payable costs(1 ether) public{
+        contractBalance += msg.value;
         Workout memory newWorkout;
         newWorkout.liftName = liftName;
         newWorkout.weight = weight;
@@ -76,8 +84,16 @@ contract mappingPractice{
       assert(workouts[creator].weight==0);
       emit workoutDeleted(liftName, msg.sender);
   }
-  function getCreator(uint index)public payable returns(address){
-      require(msg.value==0.05 ether);
+  function getCreator(uint index)public view onlyOwner returns(address){
       return workoutCreators[index];
+  }
+  function getContractBalance()public view onlyOwner returns(uint){
+      return contractBalance;
+  }
+  function withdrawContractBalance()public onlyOwner returns (uint){
+      uint toTransfer = contractBalance;
+      contractBalance = 0;
+      msg.sender.transfer(toTransfer);
+      return toTransfer;
   }
 }
