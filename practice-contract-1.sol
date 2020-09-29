@@ -1,7 +1,8 @@
 import "./ownable.sol";
+import "./destroyable.sol";
 pragma solidity 0.5.12;
 
-contract mappingPractice is Ownable{
+contract mappingPractice is Ownable, Destroyable{
 
     uint contractBalance = 0;
 
@@ -71,7 +72,7 @@ contract mappingPractice is Ownable{
 
       delete workouts[creator];
       assert(workouts[creator].weight==0);
-      emit workoutDeleted(liftName, msg.sender);
+      emit workoutDeleted(liftName, owner);
   }
   function getCreator(uint index)public view onlyOwner returns(address){
       return workoutCreators[index];
