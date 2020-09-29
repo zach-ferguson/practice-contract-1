@@ -1,6 +1,7 @@
+import "./ownable.sol";
 pragma solidity 0.5.12;
 
-contract mappingPractice{
+contract mappingPractice is Ownable{
 
     uint contractBalance = 0;
 
@@ -15,21 +16,9 @@ contract mappingPractice{
     event workoutCreated(string liftName, uint sets, uint reps, address);
     event workoutDeleted(string liftName, address);
 
-    address public owner;
-
     modifier costs(uint cost){
         require(msg.value >= cost);
         _;
-    }
-
-
-    modifier onlyOwner(){
-        require(msg.sender == owner, "This address is not authorized to execute the task.");
-        _;
-    }
-
-    constructor() public{
-        owner = msg.sender;
     }
 
     mapping(address => Workout) public workouts;
